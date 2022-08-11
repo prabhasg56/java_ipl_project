@@ -96,6 +96,7 @@ public class Main {
     //1. Number of matches played per year of all the years in IPL.
     public static void matchesPlayedPerYear(List<MatchesData> matchData) {
         Map<String, Integer> resultMatchesPlayPerYear = new HashMap<>();
+
         for (MatchesData eachLineData : matchData) {
             String matchYear = eachLineData.getSesson();
             // System.out.println(matchYear);
@@ -129,7 +130,7 @@ public class Main {
                 resultMatchesWonByTeam.put(sesson, winnerWon);
             }
         }
-        //System.out.println(resultMatchesWonByTeam);
+        System.out.println(resultMatchesWonByTeam);
     }
 
     //3. For the year 2016 get the extra runs conceded per team.
@@ -166,9 +167,9 @@ public class Main {
     //4. For the year 2015 get the top economical bowlers.
 
     public static void topEconomicalBowlers2015(List<MatchesData> matchesData, List<DeliveriesData> deliveriesData, String year) {
-        Map<String, Integer> topEconomicalBowlers = new HashMap<>();
-        Map<String, Integer> totalOverByBowler2015 = new HashMap<>();
-        Map<String, Integer> runsGivenByBowler2015 = new HashMap<>();
+        Map<String, Float> topEconomicalBowlers = new HashMap<>();
+        Map<String, Float> totalOverByBowler2015 = new HashMap<>();
+        Map<String, Float> runsGivenByBowler2015 = new HashMap<>();
 
         for (MatchesData eachLineData : matchesData) {
             if (eachLineData.getSesson().equals(year)) {
@@ -176,30 +177,47 @@ public class Main {
                     String bowler = eachLineDelvData.getBowler();
                     if (eachLineData.getId() == eachLineDelvData.getMatchId()) {
                         if (runsGivenByBowler2015.containsKey(bowler)) {
-                            runsGivenByBowler2015.put(bowler, runsGivenByBowler2015.get(bowler) + eachLineDelvData.getTotalRuns());
+                            runsGivenByBowler2015.put(bowler, runsGivenByBowler2015.get(bowler) + eachLineDelvData.getTotalRuns() * 1.0f);
                         } else {
-                            runsGivenByBowler2015.put(bowler, eachLineDelvData.getTotalRuns());
+                            runsGivenByBowler2015.put(bowler, eachLineDelvData.getTotalRuns() * 1.0f);
                         }
                         if (totalOverByBowler2015.containsKey(bowler)) {
                             totalOverByBowler2015.put(bowler, totalOverByBowler2015.get(bowler) + eachLineDelvData.getBall() / 6);
-
                         } else {
-                            totalOverByBowler2015.put(bowler, 0);
+                            totalOverByBowler2015.put(bowler, 0.0f);
                         }
                     }
                 }
             }
         }
-        for (Map.Entry<String, Integer> entry : runsGivenByBowler2015.entrySet()) {
+        for (Map.Entry<String, Float> entry : runsGivenByBowler2015.entrySet()) {
 
             topEconomicalBowlers.put(entry.getKey(), (runsGivenByBowler2015.get(entry.getKey()) / totalOverByBowler2015.get(entry.getKey())));
         }
         //Sorting Map datas
-        Set<Map.Entry<String, Integer>> entrySet = topEconomicalBowlers.entrySet();
-        List<Map.Entry<String, Integer>> sortedResult = new ArrayList<>(entrySet);
+        Set<Map.Entry<String, Float>> entrySet = topEconomicalBowlers.entrySet();
+        //System.out.println(entrySet);
+        List<Map.Entry<String, Float>> sortedResult = new ArrayList<>(entrySet);
+        //System.out.println(sortedResult);
         Collections.sort(sortedResult, (val1, val2) -> val1.getValue().compareTo(val2.getValue()));
 
         System.out.println(sortedResult);
+    }
+    
+    //Display the details of team that won the toss also won the toss match
+
+    public static void displayTeamWonMatchAndToss(List<MatchesData> matchesData) {
+
+        ArrayList<String> wonTeams = new ArrayList<>();
+
+        for (MatchesData eachMatchData : matchesData) {
+            String tossWinner = eachMatchData.getTossWinner();
+            String matchWinner = eachMatchData.getWinner();
+            if (tossWinner.equals(matchWinner)) {
+                wonTeams.add(tossWinner);
+            }
+        }
+        System.out.println(wonTeams);
     }
 
     public static void main(String[] args) {
@@ -212,8 +230,12 @@ public class Main {
             extraRunByPerTeam(matchesData, deliveriesData, year);
             String year1 = "2015";
             topEconomicalBowlers2015(matchesData, deliveriesData, year1);
+            displayTeamWonMatchAndToss(matchesData);
+
         } catch (Exception e) {
             System.out.println(e);
         }
     }
+
+
 }
